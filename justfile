@@ -1,9 +1,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+set export
 
 default:
     @just --list
+
+fac_version    := env_var_or_default("FAC_VERSION",       "1.2.0")
 
 # Local ansible-galalxy build and install
 local:
@@ -22,6 +25,15 @@ lint:
     for PLAYBOOK in tutorial/v1.x/??-*.yml; do ansible-lint ${PLAYBOOK}; done
     shellcheck tutorial/*.sh
     yamllint .
+
+#build image
+docker:
+    # docker build -t fabric-ansible .
+    docker build -t cconsensus/fabric-ansible-collection:{{fac_version}} .
+    # docker tag cconsensus/fabric-ansible-collection:{{fac_version}} cconsensus/fabric-ansible-collection:latest
+    docker push cconsensus/fabric-ansible-collection:{{fac_version}}
+    # docker push cconsensus/fabric-ansible-collection:latest
+    # docker save cconsensus/fabric-ansible-collection:{{fac_version}} cconsensus/fabric-ansible-collection:latest | gzip -c > image.tar.gz
 
 # Build the documentation
 docs:
